@@ -1,0 +1,438 @@
+<?php
+ 
+ // $Id: mod.html,v 1.5 2006/10/07 12:28:57 gustav_delius Exp $
+/**
+ * This page defines the form to create or edit an instance of this module
+ * It is used from /course/mod.php.  The whole instance is available as $form.
+ *
+ * @wiziq 
+ * @version $Id: mod.html,v 1.5 2006/10/07 12:28:57 gustav_delius Exp $
+ * @package wizq
+ **/
+
+/// First we check that form variables have been initialised
+if (!isset($form->name)) {
+    $form->name = '';
+}
+// More similar blocks go here...
+
+$usr = $USER->username;
+$email = $USER->email;
+//echo $email;
+ 
+$path1=$CFG->wwwroot."/mod/wiziq/sign_now.php?id=$id&section=$form->section&sesskey=$form->sesskey&add=$form->modulename";
+
+ 
+ 
+ 
+?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>WiZiQ - Join Now</title>
+
+<style>
+.m_12b585858{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration:none;
+font-weight:bold;
+color:#585858;
+padding-right:10px;
+}
+
+.m_12r585858{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration:none;
+font-weight:normal;
+color:#000000;
+line-height:18px;
+
+}
+
+.m_12rblue{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration: underline;
+font-weight:normal;
+color:#0F7BBB;
+line-height:18px;
+
+}
+.m_12rblue:hover{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration: none;
+font-weight:normal;
+color:#0F7BBB;
+line-height:18px;
+
+}
+.m_textinput{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration: none;
+font-weight:normal;
+color:#666666;
+height:20px;
+border-style:solid;
+border-width:1px;
+border-color:#CCCCCC;
+width:270px;
+padding-top:3px;
+
+}
+
+.m_16rblue{
+font-family:Arial, Helvetica, sans-serif;
+font-size:16px;
+text-decoration: none;
+font-weight:bold;
+color:#0F7BBB;
+line-height:18px;
+
+}
+
+.m_dropdown{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-decoration: none;
+font-weight:normal;
+color:#666666;
+height:24px;
+border-style:solid;
+border-width:1px;
+border-color:#CCCCCC;
+width:274px;
+padding-top:3px;
+
+}
+.style2 {color: #000000}
+.perror{
+    border:1px solid #FF0000; 
+	font-family:Arial, Helvetica, sans-serif;
+		font-weight:normal;
+	color:#FF0000;
+}
+.error{
+    border:#FF0000 1px; 
+	font-family:Arial, Helvetica, sans-serif;
+	
+	font-weight:normal;
+	color:#FF0000;
+}
+</style>
+<script language="javascript" type="text/javascript">
+//<!--
+function popitup(url) {
+	newwindow=window.open(url,'name','scrollbars=1,height=690,width=900');
+	if (window.focus) {newwindow.focus()}
+	return false;
+}
+
+//-->
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+
+var skipClientValidation = false;
+
+function qf_errorHandler(element, _qfMsg) {
+  div = element.parentNode;
+  
+  if (_qfMsg != '') {
+    var errorSpan = document.getElementById('id_error_'+element.name);
+    if (!errorSpan) {
+      errorSpan = document.createElement("span");
+      errorSpan.id = 'id_error_'+element.name;
+      errorSpan.className = "error";
+      element.parentNode.insertBefore(errorSpan, element.parentNode.firstChild);
+    }
+
+    while (errorSpan.firstChild) {
+      errorSpan.removeChild(errorSpan.firstChild);
+    }
+
+    errorSpan.appendChild(document.createTextNode(_qfMsg));
+    errorSpan.appendChild(document.createElement("br"));
+
+    if (div.className.substr(div.className.length - 6, 6) != " error"
+        && div.className != "error") {
+      div.className += " perror";
+    }
+
+    return false;
+  } else {
+    var errorSpan = document.getElementById('id_error_'+element.name);
+    if (errorSpan) {
+      errorSpan.parentNode.removeChild(errorSpan);
+    }
+
+    if (div.className.substr(div.className.length - 6, 6) == " error") {
+      div.className = div.className.substr(0, div.className.length - 6);
+    } else if (div.className == "error") {
+      div.className = "";
+    }
+
+    return true;
+  }
+}
+function validate_mod_wiki_mod_form_name(element) {
+
+ var _qfMsg=''; 
+value=document.mod.pass.value;
+
+ 
+  if (value == '') {
+    
+    _qfMsg ='Enter your password';
+ return qf_errorHandler(element, _qfMsg);
+  }
+
+   var Pass1=document.mod.pass.value
+  passlen=Pass1.length
+  if(passlen<6)
+  {
+    _qfMsg ='Your password should be greater than six characters ';
+ return qf_errorHandler(element, _qfMsg);
+
+}
+}
+
+function validate_mod_wiki_mod_form_name1(element) {
+
+ var _qfMsg=''; 
+value=document.mod.name.value;
+
+ 
+  if (value == '') {
+    
+    _qfMsg ='Enter your name';
+ return qf_errorHandler(element, _qfMsg);
+  }
+
+  
+}
+
+function validate_mod_wiki_mod_form_conf(element) {
+
+ var _qfMsg=''; 
+value=document.mod.conf_email.value;
+value1=document.mod.email.value;
+ 
+  if (value != value1 ) {
+    
+    _qfMsg ='Confirm Email Address- Re-enter your email address ';
+ return qf_errorHandler(element, _qfMsg);
+  }
+
+  
+}
+
+function validate_mod_wiki_mod_form_email(element) {
+
+var _qfMsg=''; 
+
+
+	var emailID=document.mod.email
+	
+	if ((emailID.value==null)||(emailID.value=="")){
+		_qfMsg ='Enter your Email';
+
+ return qf_errorHandler(element, _qfMsg);
+		
+		
+	}
+	if (echeck(emailID.value)==false){
+		emailID.value=""
+		
+		_qfMsg ='Enter Valid Email Address';
+
+ return qf_errorHandler(element, _qfMsg);		
+	}
+	
+}	
+ 
+//value=document.mod.email.value;
+
+ 
+ 
+
+  
+
+
+function echeck(str) {
+
+		var at="@"
+		var dot="."
+		var lat=str.indexOf(at)
+		var lstr=str.length
+		var ldot=str.indexOf(dot)
+		if (str.indexOf(at)==-1){
+		   //alert("Invalid E-mail ID")
+		   return false
+		}
+
+		if (str.indexOf(at)==-1 || str.indexOf(at)==0 || str.indexOf(at)==lstr){
+		  // alert("Invalid E-mail ID")
+		   return false
+		}
+
+		if (str.indexOf(dot)==-1 || str.indexOf(dot)==0 || str.indexOf(dot)==lstr){
+		    //alert("Invalid E-mail ID")
+		    return false
+		}
+
+		 if (str.indexOf(at,(lat+1))!=-1){
+		    //alert("Invalid E-mail ID")
+		    return false
+		 }
+
+		 if (str.substring(lat-1,lat)==dot || str.substring(lat+1,lat+2)==dot){
+		    //alert("Invalid E-mail ID")
+		    return false
+		 }
+
+		 if (str.indexOf(dot,(lat+2))==-1){
+		    //alert("Invalid E-mail ID")
+		    return false
+		 }
+		
+		 if (str.indexOf(" ")!=-1){
+		    //alert("Invalid E-mail ID")
+		    return false
+		 }
+
+ 		 return true					
+	}
+
+function validate_mod_wiki_mod_form(frm) {
+
+  var ret = true;
+
+  var frm = document.getElementById('mod')
+  var first_focus = false;
+  
+ret = validate_mod_wiki_mod_form_name1(document.mod.elements['name']);
+  if (ret==false ) {
+        //frm.elements['pass'].focus();
+  return false;
+  }
+
+  ret = validate_mod_wiki_mod_form_email(document.mod.elements['email']);
+  if (ret==false ) {
+         //frm.elements['pass'].focus();
+  return false;
+  }
+
+ret = validate_mod_wiki_mod_form_conf(document.mod.elements['conf_email']);
+  if (ret==false ) {
+        //frm.elements['pass'].focus();
+  return false;
+  }
+
+
+  ret = validate_mod_wiki_mod_form_name(document.mod.elements['pass']);
+  if (ret==false ) {
+        //frm.elements['pass'].focus();
+  return false;
+  }
+  
+  
+  
+
+  return true;
+
+
+}
+//]]>
+</script>
+</head>
+
+<body>
+<table width="674" border="0" align="center" cellpadding="0" cellspacing="0" style="border:#999999 1px solid;">
+  <form name="mod" method="post" action="<?php echo $CFG->wwwroot; ?>/mod/wiziq/createuser.php">
+ <input type="hidden" name="id" value="<?php echo $id;?>" />
+    <input type="hidden" name="sesskey" value="<?php  p($form->sesskey); ?>" />
+
+<input type="hidden" name="section"       value="<?php  p($form->section) ?>" />
+  <input type="hidden" name="add"       value="<?php p($form->modulename) ?>" />
+  <tr>
+    <td align="center" valign="top"><img src="images/wiziq-log-m.gif" width="639" height="132" /></td>
+  </tr>
+  <tr>
+    <td align="left" valign="top"></td>
+  </tr>
+  <tr>
+    <td height="395" align="left" valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td height="20" align="left" valign="top"></td>
+        </tr>
+      <tr>
+        <td width="87%" height="362" align="left" valign="top"><table width="100%" border="0" align="center" cellpadding="5" cellspacing="0">
+          
+          <tr>
+            <td height="30" colspan="3" align="left" valign="middle" bgcolor="#F4F4F4" style="padding-left:10px;" class="m_16rblue"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="16%"><span class="m_16rblue" style="padding-left:10px;">Join Now </span></td>
+                <td width="21%" align="right" class="m_12b585858" style="padding-right:10px;">Registered User?</td>
+                <td width="63%"><a href="<?php echo $path1; ?>" class="m_12rblue">Sign In</a></td>
+              </tr>
+            </table></td>
+            </tr>
+          <tr>
+            <td height="30" colspan="3" align="right" valign="middle" class="m_12b585858">&nbsp;</td>
+            </tr>
+          <tr>
+            <td width="25%" height="35" align="right" valign="middle" class="m_12b585858">Name:</td>
+            <td width="44%" align="left" valign="middle"><div id="id_name1"><input name="name" type="text" class="m_textinput" id="id_name1" onblur="validate_mod_wiki_mod_form_name1(this)" onchange="validate_mod_wiki_mod_form_name1(this)" value="<?php  echo $usr ?>" /></div></td>
+            <td width="31%" rowspan="9" align="right" valign="top"><img src="images/banner001-m.gif" width="208" height="346" /></td>
+          </tr>
+          <tr>
+            <td height="35" align="right" valign="middle" class="m_12b585858">Email Address:</td>
+            <td align="left" valign="middle"><div id="id_email"><input name="email" type="text" class="m_textinput" id="id_email" onblur="validate_mod_wiki_mod_form_email(this)" onchange="validate_mod_wiki_mod_form_email(this)" value="<?php echo $email ?>" /></div></td>
+            </tr>
+          <tr>
+            <td height="35" align="right" valign="middle" class="m_12b585858">Confirm Email Address:<br /></td>
+            <td align="left" valign="middle"><div id="id_conemail"><input name="conf_email" type="text" class="m_textinput" id="id_conemail" onblur="validate_mod_wiki_mod_form_conf(this)" onchange="validate_mod_wiki_mod_form_conf(this)" value="<?php echo $email ?>" /></div></td>
+            </tr>
+          <tr>
+            <td height="35" align="right" valign="middle" class="m_12b585858">Password:</td>
+            <td align="left" valign="middle"><div id="id_pass"><input name="pass" type="password" class="m_textinput" onblur="validate_mod_wiki_mod_form_name(this)" onchange="validate_mod_wiki_mod_form_name(this)" id="id_pass" /></div>              </td>
+            </tr>
+          
+          <tr>
+            <td align="left" valign="top"></td>
+            <td height="10" align="left" valign="top" class="m_12r585858">More than Six Characters</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="m_12r585858">By clicking “Join Now&quot;, you are indicating that 
+              you have read understood and agree to WiZiQ's<br />
+              <a href="#" onclick="return popitup(' http://org.wiziq.com/UserAgreement.aspx')" class="m_12rblue">User Agreement</a> and <a href="#" onclick="return popitup('http://org.wiziq.com/PrivacyPolicy.aspx')" class="m_12rblue">Privacy Policy</a></td>
+            </tr>
+          <tr>
+            <td height="20"></td>
+            <td></td>
+            </tr>
+          <tr>
+            <td></td>
+            <td align="left" valign="top"><table width="53%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td align="left" valign="middle" style="padding-right:10px;"><input name="submit" type="image" src="images/new_index_btn_join.gif" onclick="return validate_mod_wiki_mod_form(this)" value="Join"> </td>
+                </tr>
+            </table></td>
+            </tr>
+        </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  </form>
+</table>
+</body>
+</html>
