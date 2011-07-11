@@ -1,13 +1,19 @@
 <?php
-
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * Here is the code for confirmation before deleting class
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("../../config.php");
 require_once("lib.php");
 require_once($CFG->dirroot."/course/lib.php");
 require_once($CFG->dirroot.'/calendar/lib.php');
-/*print_header($SITE->fullname, $SITE->fullname, 'home', '',
-                 <meta name="description" content="'. s(strip_tags($SITE->summary)) .'" />',
-                 true, '', user_login_string($SITE).$langmenu);*/
-				//$courseid= $_REQUEST['id'];
 
 $aid=$_REQUEST['aid'];
 $insid=$_REQUEST['inst'];

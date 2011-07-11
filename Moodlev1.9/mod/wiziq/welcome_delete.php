@@ -1,6 +1,16 @@
 <?php
 
-
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * After deleting the class control comes here.
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("../../config.php");
 require_once("lib.php");
 require_once($CFG->dirroot."/course/lib.php");
@@ -40,15 +50,10 @@ $calendar_navlink = array('name' => $strwiziqs,
 $navlinks[] = $calendar_navlink;
 $navlinks[] = array('name' => 'WiZiQ Class', 'link' => null, 'type' => 'misc');
     $navigation = build_navigation($navlinks);
-	
-	
+		
 	print_header($site->shortname.':'.$strwiziqs,$strwiziqs,$navigation, $wiziq->name,"", true,"",user_login_string($site));
 		
-		
-//print_header($SITE->fullname, $SITE->fullname, 'home', '',
-                // '<meta name="description" content="'. s(strip_tags($SITE->summary)) .'" />',
-               //  true, '', user_login_string($SITE).$langmenu);		
-		$courseid= $_REQUEST['id'];
+	$courseid= $_REQUEST['id'];
 		
 		
 		

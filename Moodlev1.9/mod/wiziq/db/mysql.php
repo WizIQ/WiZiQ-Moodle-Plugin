@@ -1,9 +1,15 @@
 <?PHP
-
-// THIS FILE IS DEPRECATED!  PLEASE DO NOT MAKE CHANGES TO IT!
-//
-// IT IS USED ONLY FOR UPGRADES FROM BEFORE MOODLE 1.7, ALL 
-// LATER CHANGES SHOULD USE upgrade.php IN THIS DIRECTORY.
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * This is Data Base file 
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 function wiziq_upgrade($oldversion) {
 /// This function does anything necessary to upgrade 

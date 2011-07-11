@@ -7,7 +7,19 @@
 </style>
 </head>
 <?php
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * Here Users Package info is shown.
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("wiziqconf.php");
+//------------------reading the users xml file---------------
 	$content = file_get_contents($ConfigFile);
 	if ($content !== false) {
 	   // do something with the content
@@ -66,7 +78,7 @@ require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->dirroot.'/mod/forum/lib.php');
 require_once ($CFG->dirroot.'/lib/blocklib.php');
 require_once ($CFG->dirroot.'/lib/moodlelib.php');
-
+//---------------getting the package info of moodle admin------------------
 function do_post_request($url, $data, $optional_headers = null)
   {
 
@@ -119,6 +131,7 @@ catch(Exception $e)
 	 $RecordingCreditsPending=0;
 	 if($concurrsession=="-1")
 	 $concurrsession="Unlimited Rooms";
+	 //---------------------showing the package info of admin---------------			
 				?>
 	       <table width="510px" align="left" cellpadding="0"  cellspacing="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px; text-decoration:none;">
 
@@ -142,16 +155,7 @@ catch(Exception $e)
     </table>
 
 				<?php
-				/*if($RecordingCreditsPending>0)
-				{
-				echo 'You can record '. $RecordingCreditsPending.' more classes. <a href="'. $buynow_url.' " target="_blank" > Buy more</a>.<br>';
-				}
-				else
-				echo 'You can not record more classes. <a href="'. $buynow_url.' " target="_blank" > Buy more</a>.<br>';
-				echo $message;
-				echo '<a href="'.$pricing_url.'" target="_blank">'. $Package_info_message.'</a>.'; ?>
-    </font>
-                <?php*/
+				
 				if($RecordingCreditsPending ==0)
 				{
 				echo '<script language="javascript">

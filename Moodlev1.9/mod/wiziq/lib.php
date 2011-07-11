@@ -1,15 +1,14 @@
-<?php  // $Id: lib.php,v 1.4 2006/08/28 16:41:20 mark-nielsen Exp $
-/**
- * Library of functions and constants for module wiziq
- *
- * @wiziq 
- * @version $Id: lib.php,v 1.4 2006/08/28 16:41:20 mark-nielsen Exp $
- * @package wiziq
- **/
-
-/// (replace wiziq with the name of your module and delete this line)
-
-
+<?php  /*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ�s web based virtual classroom equipped with real-time collaboration tools 
+ * Given for having the db functions
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 $wiziq_CONSTANT = 7;     /// for example
 
 /**
@@ -23,15 +22,6 @@ $wiziq_CONSTANT = 7;     /// for example
  **/
 function wiziq_add_instance($wiziq) {
     
-    // temp added for debugging
-    
-    //print_object($wiziq);
-	
-    //print_object($USER);
-	//$wiziquname=$USER->username;
-
-	//echo '</p>This is where we add the form for user'.$wiziquname;
-   //  $wiziq->pagename = wiziq_page_name($wiziq);
     $wiziq->timemodified = time();
 
     # May have to add extra stuff in here #
@@ -41,16 +31,7 @@ function wiziq_add_instance($wiziq) {
 }
 
 function wiziq_add_attendeeinfo($wiziq) {
-    
-    // temp added for debugging
-    
-    //print_object($wiziq);
-	
-    //print_object($USER);
-	//$wiziquname=$USER->username;
-
-	//echo '</p>This is where we add the form for user'.$wiziquname;
-   //  $wiziq->pagename = wiziq_page_name($wiziq);
+  
     $wiziq->timemodified = time();
 
     # May have to add extra stuff in here #
@@ -61,25 +42,14 @@ function wiziq_add_attendeeinfo($wiziq) {
 
 function wiziq_add_event($wiziq) {
     
-    // temp added for debugging
-    
-    //print_object($wiziq);
-	
-    //print_object($USER);
-	//$wiziquname=$USER->username;
-
-	//echo '</p>This is where we add the form for user'.$wiziquname;
-   //  $wiziq->pagename = wiziq_page_name($wiziq);
+  
     $wiziq->timemodified = time();
-//$v=$wiziq->timestart;
-//echo "value of time".$v;
-//$w=date("d/m/Y h :i: s A",$v);
-//echo "value of time".$w;
+
     # May have to add extra stuff in here #
     $returnid=insert_record("event", $wiziq);
     
     return $returnid;
-} //echo "vcvxcvcc". $wiziq->timemodified = time();
+} 
 
 
 /**
@@ -110,20 +80,35 @@ function wiziq_update_instance($wiziq) {
  * @return boolean Success/Failure
  **/
 function wiziq_delete_instance($id) {
+require_once("wiziqconf.php");
+require_once("locallib.php");
+global $CFG;
 
     if (! $wiziq = get_record("wiziq", "id", "$id")) {
         return false;
     }
 
-    $result = true;
-
+$qry="select id from ".$CFG->prefix."event where instance=".$id." and name like '%mod/wiziq/icon.gif%'";
+$eventid = get_field_sql($qry,$params);
+$result=false;
     # Delete any dependent records here #
+$person = array(
+        'CustomerKey'=>$customer_key,
+        'lnSesCod' => $wiziq->insescod
+               );
 
-    if (! delete_records("wiziq", "id", "$wiziq->id")) {
-        $result = false;
+ $resultttt=wiziq_do_post_request($WebServiceUrl.'moodle/class/delete',http_build_query($person, '', '&'));
+ $objDOM =wiziq_ReadXML($resultttt);
+ $Deleted=$objDOM->getElementsByTagName("Status");
+ echo $Deleted=$Deleted->item(0)->nodeValue;
+ $message=$objDOM->getElementsByTagName("message");
+ $message=$message->item(0)->nodeValue;
+    if (($Deleted=="True" && ( delete_records("wiziq", "id",$wiziq->id)) && ( delete_records('event', 'id',$eventid)) )) {
+        $result = true;
     }
-
-    return $result;
+echo $result;
+   
+return $result;
 }
 
 /**

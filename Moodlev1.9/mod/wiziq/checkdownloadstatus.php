@@ -8,6 +8,17 @@
 <body>
 
 <?php
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * This is for checking the download status of recording
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("wiziqconf.php");
 $metaTag="<meta http-equiv='refresh' content='10' />";
 $timestamp=strtotime(now);

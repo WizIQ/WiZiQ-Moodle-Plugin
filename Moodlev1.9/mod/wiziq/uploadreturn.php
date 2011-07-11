@@ -6,6 +6,17 @@
 </head>
 <body>
 <?php
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * Here control returned after uploading the content.
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("../../config.php");
 require_once("lib.php");
 require_once($CFG->dirroot."/course/lib.php");
@@ -163,11 +174,11 @@ $alink.=$arraystring[1];
 	  $wiziq->filepath=$alink;
 	  $wiziq->parentid=$id;
 	  $wiziq->contentid=$contentid;
-	 // print_r($wiziq);
+	 //-------------------------inserting the record in content table------------------
 	  $returnid=insert_record("wiziq_content", $wiziq) or die("cannot insert value in table wiziq_content");
 	  
 	 $returnid; 
-	  ////////////////////////////////////////////////////////////
+	  
 	  if(!empty($returnid))
 	  redirect("managecontent.php?q=".urlencode($_COOKIE['query'])."&course=".$urlcourse);
       

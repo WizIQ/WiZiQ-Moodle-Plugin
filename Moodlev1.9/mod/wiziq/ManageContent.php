@@ -1,16 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>Manage Content</title>
-<style type="text/css">
-.ulink{ text-decoration:underline;}
-.ulink:hover{ text-decoration:none;} 
- 
-</style>
-</head>
-<body>
-<form action="ManageContent.php" method="post">
 <?php
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ�s web based virtual classroom equipped with real-time collaboration tools 
+ * Here all the content uploaded shown with hierarchy of folders
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once("../../config.php");
  require_once("lib.php");
  require_once($CFG->dirroot .'/course/lib.php');
@@ -20,6 +19,7 @@ require_once ($CFG->dirroot.'/lib/moodlelib.php');
 include("contentPaging.php");
 require_once("wiziqconf.php");
 require_once("cryptastic.php");
+require_once("locallib.php");
 require_login();
 
     $sectionreturn = optional_param('sr', '', PARAM_INT);
@@ -38,7 +38,7 @@ require_login();
     $duplicate     = optional_param('duplicate', 0, PARAM_INT);
     $cancel        = optional_param('cancel', 0, PARAM_BOOL);
     $cancelcopy    = optional_param('cancelcopy', 0, PARAM_BOOL);
-	
+	$courseid=$course;
 	
     $eventid = optional_param('id', 0, PARAM_INT);
     $eventtype = optional_param('type', 'select', PARAM_ALPHA);
@@ -80,9 +80,7 @@ require_login();
                           '',
                           'type' => 'misc');
 
-    $day = intval($now['mday']);
-    $mon = intval($now['mon']);
-    $yr = intval($now['year']);
+   
 	 // If a course has been supplied in the URL, change the filters to show that one
     if($urlcourse > 0 && record_exists('course', 'id', $urlcourse)) {
         //require_login($urlcourse, false);
@@ -104,10 +102,13 @@ require_login();
 	$navlinks[] = array('name' => 'WiZiQ Content', 'link' => null, 'type' => 'misc');
     $navigation = build_navigation($navlinks);
 	
-	print_header($SITE->shortname.':'.$strwiziqs,$strwiziqs,$navigation, $wiziq->name,"", true,"",user_login_string($site));
-	print_simple_box_start('center', '', '', 5, 'generalbox', $module->name);
-	//include("sideblock.php");
+	print_header($SITE->shortname.':'.$strwiziqs,$strwiziqs,$navigation, "","", true,"","");
+	print_simple_box_start('center', '', '', 5, 'generalbox', "");
+	
 	?>
+<link href="main.css" rel="stylesheet" type="text/css">
+<script language="javascript" src="wiziq.js" type="text/javascript"></script>
+<form action="managecontent.php" method="post">
 <table><tr>
 <td width="180px" align="left" valign="top">
 <?php
@@ -116,7 +117,6 @@ include("sideblock.php");
 </td>
 <td width="800px">
 
-   
     <table cellspacing="3" cellpadding="3" border="0" width="100%" style="margin-left: auto; margin-right:100px; font-size:14px;font-family:Arial,Verdana,Helvetica,sans-serif; ">
     <tr><td>
     <input type="hidden" name="refreshCount" id="refreshCount" value=""/>
@@ -159,19 +159,18 @@ if(!empty($_REQUEST['q']))
 
 }
 
-function curPageURL() {
- $pageURL = 'http';
- if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
- $pageURL .= "://";
- if ($_SERVER["SERVER_PORT"] != "80") {
-  $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
- } else {
-  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
- }
- return $pageURL;
-}
+//---------------logic to show the subfolders in parent folder upto level 3-----------------
+$sublevel=1; // initializing the first level of folders hierarchy
+$delstr="";
+$currenttotal="";
+$offset="";
+$cids="";
+if(!empty($_REQUEST['currenttotal']))
+$currenttotal=$_REQUEST['currenttotal'];
 
-$sublevel=1;
+if(!empty($_REQUEST['offset']))
+$offset=$_REQUEST['offset'];
+
 $subfolder="0|Content";
 if(!empty($_request['s']))
 {
@@ -223,160 +222,125 @@ if($id==0)
 $_SESSION['folderSubLevel']=1;	
 }
 
+//--------------------------end----------------------------
 
+//---------------------create folder logic----------------------
 
-if($_POST['btnCreateFolder'])
+if(!empty($_POST['btnCreateFolder']) && $_POST['btnCreateFolder'])
 {
-$foldername=$_REQUEST['txtFolder'];
-
-$folderquery="select * from mdl_wiziq_content where name='".$foldername."' and isdeleted=0 and userid=".$USER->id;
-	
-
-$folderResult=mysql_query($folderquery);
-if(mysql_num_rows($folderResult)>0)
-{
+    $foldername=$_REQUEST['txtFolder'];
+    $folderquery="select * from ".$CFG->prefix."wiziq_content where name='".$foldername."' and isdeleted=0 and userid=".$USER->id;
+    $folderResult=count_records_sql($folderquery);
+    if($folderResult>0)
+    {
 	$errorMsg="This Folder Name is already in use";
-	
+    }
+    else
+    {
+        $wiziq->name=$foldername;
+	$wiziq->title="folder";
+	$wiziq->description="";
+        $wiziq->type=1;
+        $wiziq->uploaddatetime=time();
+        $wiziq->userid=$USER->id;
+        $filepath="";//'<a href="managecontent.php?parentid='.$parentid.'">'.$_REQUEST['parentfoldername'].'</a>/';
+        $wiziq->filepath=$filepath;
+        $wiziq->parentid=$id;
+        insert_record("wiziq_content", $wiziq);
+    }
 }
-else
+ $limit=10; //setting the limit to show content per page
+if($CFG->dbtype=="mysql")
 {
-      $wiziq->name=$foldername;
-	  $wiziq->title="folder";
-	  $wiziq->description="";
-	  $wiziq->type=1;
-	  $wiziq->uploaddatetime=time();
-	  $wiziq->userid=$USER->id;
-	  $filepath="";//'<a href="ManageContent.php?parentid='.$parentid.'">'.$_REQUEST['parentfoldername'].'</a>/';
-	  $wiziq->filepath=$filepath;
-	  $wiziq->parentid=$id;
-insert_record("wiziq_content", $wiziq);	
+$query="select * from ".$CFG->prefix."wiziq_content where userid=".$USER->id." and parentid=".$id." and isDeleted=0 order by parentid, filepath, name";
 }
+else if($CFG->dbtype=="mssql_n" || $CFG->dbtype=="sqlsrv")
+{
+ $query="Select * from (SELECT ROW_NUMBER() OVER (ORDER BY name)AS Row, * from ".$CFG->prefix."wiziq_content where userid=".$USER->id." and parentid=".$id." and isDeleted=0) as logas";
+}
+$query=paging_1($query,"","0%",$courseid);
+
+//-------------------------- REFRESH CODE ---------------------------------
+if(!empty($_REQUEST['refresh'])&&$_REQUEST['refresh']==1)
+{
+    $refreshQuery="select * from ".$CFG->prefix."wiziq_content where userid=".$USER->id." and parentid=".$id." and isDeleted=0 and status=1 and type=2";
+    $resultRefresh=get_records_sql($refreshQuery);
+    if(!empty($resultRefresh))
+    {
+        $countID=0;
+        foreach($resultRefresh as $refreshItem)
+        {
+            $cids=$cids.",".$refreshItem->contentid;
+            $contentTableID[$countID]=$refreshItem->id;
+            $countID++;
+        }
+        $cids=trim($cids,",");
+        //reading the content info which is uploaded
+        $content = file_get_contents($contentUpload.'?method=contentconversionstatus&cids='.$cids.'');
+        $objDOM=wiziq_ReadXML($content);
+        $contentTable= $objDOM->getElementsByTagName("content");
+        $length =$contentTable->length;
+        foreach( $contentTable as $value )
+        {
+            $conid = $value->getElementsByTagName("id");
+            $conid= $conid->item(0)->nodeValue;
+            $stat = $value->getElementsByTagName("stat");
+            $stat= $stat->item(0)->nodeValue;
+            $contentIdToUpdate=$contentTableID[$count];
+            $paramUpdate=array('id'=>$contentIdToUpdate,'status'=>$stat);
+            echo update_record('wiziq_content', $paramUpdate, $bulk=false);
+            $count++;
+        }
+
+    }
+    //print_r($statusXMLarray);
 }
 
-$limit=10;
-/*$rolequery="select ra.roleid from ".$CFG->prefix."context,".$CFG->prefix."role_assignments ra where ".$CFG->prefix."context.id=ra.contextid and ra.userid=".$USER->id." and (".$CFG->prefix."context.instanceid=".$COURSE->id ." or ".$CFG->prefix."context.instanceid=". 0 .")";
-
-$rows=array();
-$roleResult=mysql_query($rolequery);
-
-$i=0;
-while($rows=mysql_fetch_array($roleResult))
+$result=get_records_sql($query);
+$totalContents=count_records_sql($query);
+if(!empty($totalContents))
 {
-$roleresultant[$i]=$rows['roleid'];
-$i++;
-}
-
-sort($roleresultant);
-$role=$roleresultant[0];
-if( $role==1 )
-{
-$query="select * from ".$CFG->prefix."wiziq_content where parentid=".$id." and isDeleted=0 order by parentid, filepath, name";
-}
-else
-{*/
-$query="select * from ".$CFG->prefix."wiziq_content where userid=".$USER->id." and parentid=".$id." and isDeleted=0 order by parentid, filepath, name";	
-//}
-$query=paging_1($query,"","0%");
-//$result=mysql_query($query) or die("fail to get records");
-
-//////////////////// REFRESH CODE /////////////////////////
-if($_REQUEST['refresh']==1)
-{
-if( $role==1 )
-{
-$refreshQuery="select * from ".$CFG->prefix."wiziq_content where parentid=".$id." and isDeleted=0 and status=1 and type=2";
-}
-else
-{
-$refreshQuery="select * from ".$CFG->prefix."wiziq_content where userid=".$USER->id." and parentid=".$id." and isDeleted=0 and status=1 and type=2";
-}	
-$resultRefresh=mysql_query($refreshQuery) or die("fail to get records for refresh code");
-if(mysql_num_rows($resultRefresh)!=0)
-{
-	for($i=0;$i<=mysql_num_rows($resultRefresh);$i++)
+    foreach($result as $contentArray)
 	{
-		$resultset=mysql_data_seek($resultRefresh,$i);
-		$resultset=mysql_fetch_assoc($resultRefresh);
-		$cids=$cids.",".$resultset['contentid'];
-		
-	}
- $cids=trim($cids,",");
-	//$cids="17302,17301,16577,16576";
- $content = file_get_contents($contentUpload.'?method=contentconversionstatus&cids='.$cids.'');
-
-try
-	{
-	 $objDOM = new DOMDocument();
- 	 $objDOM->loadXML($content); 
-	}
-	catch(Exception $e)
-	{
-		echo $e->getMessage();
-	}
-$contentTable= $objDOM->getElementsByTagName("content");	
-$length =$contentTable->length;
-//$i=1;
-foreach( $contentTable as $value )
-  {
-	  
-	//  $j=1;
-$conid = $value->getElementsByTagName("id");
- $conid= $conid->item(0)->nodeValue;
-//$statusXMLarray[$i][$j]=$conid;  
-
-$stat = $value->getElementsByTagName("stat");
- $stat= $stat->item(0)->nodeValue;
-//$statusXMLarray[$i][$j+1]=$stat;
-//$i++;
-$sqlStatement='update '.$CFG->prefix.'wiziq_content set status='.$stat.' where contentid='.$conid;
-mysql_query($sqlStatement) or die("can not update");
-  }
-     
-}
-//print_r($statusXMLarray);
-}
-$result=mysql_query($query) or die("fail to get records");
-if(mysql_num_rows($result)!=0)
-{
-for($i=0;$i<mysql_num_rows($result);$i++)
-{
-	$resultset=mysql_data_seek($result,$i);
-	$resultset=mysql_fetch_assoc($result);
-if($resultset['type']==2) //file
-{
-?>
-<tr class="folder"><td align="left" width="330" class="name" style="white-space: nowrap;padding:0 0 10px 10px"><?php echo "<img src=\"images/".$resultset['icon']."\" /> ".$resultset['title']; ?>
-<?php
-}
-else if($resultset['type']==1) //folder
-{
-	//$subfolder=$subfolder.",".$resultset['id']."|".$resultset['name'];
-?>
-
-<tr class="folder">
-
-<td align="left" class="name" width="330" style="white-space: nowrap;padding:0 0 10px 10px"><?php 
-$msgtable='id='.$resultset['id'].'&s='.$subfolder.','.$resultset['id'].'|'.$resultset['name'];
-	 $strtable =urlencode(encrypt(urlencode($msgtable)));
-echo "<img src=\" ".$CFG->pixpath."/f/folder.gif\"  />"." <a href=\"ManageContent.php?q=".$strtable."&course=".$urlcourse."\"  >". $resultset['name']."</a>"	;
-}
-?></td><td width="180px" valign="top" style="padding:0 0 10px 10px"><?php  
-     
-		 if($resultset['type']==2) //file
-		 {
-		  	  if($resultset['status']==3)
-			  echo 'Not Available';
-			  else if ($resultset['status']==2)
-			  echo 'Available';
-			  else
-			  echo 'InProgress';
-			 
-		 }
-		  ?></td><td class="commands" width="140px" align="center" style="font-size:12px;padding:0 0 10px 10px"><?php if($resultset['type']==2){ ?>
-     	<a href="deleteobject.php?<?php echo "contentid=".$resultset['contentid']."&q=".$delstr."&offset=".$_REQUEST['offset']."&currenttotal=".$_REQUEST['currenttotal']."&course=".$urlcourse; ?>" id="hrefDelete" class="ulink" ><span class="ulink">Delete</span></a><?php } else if($resultset['type']==1){ ?><a href="deleteobject.php?<?php echo "folderid=".$resultset['id']."&q=".$delstr."&offset=".$_REQUEST['offset']."&currenttotal=".$_REQUEST['currenttotal']."&course=".$urlcourse; ?>" id="hrefDelete" class="ulink"><span class="ulink">Delete</span></a><?php } ?> </td></tr>
-<?php
-
-}
+	   if($contentArray->type==2) //file
+            {
+            ?>
+            <tr class="folder"><td align="left" width="330" class="name" style="white-space: nowrap;padding:0 0 10px 10px"><?php echo "<img src=\"images/".$contentArray->icon."\" /> ".$contentArray->title; ?>
+            <?php
+        }
+        else if($contentArray->type==1) //folder
+        {
+            ?>
+            <tr class="folder">
+            <td align="left" class="name" width="330" style="white-space: nowrap;padding:0 0 10px 10px"><?php
+            $msgtable='id='.$contentArray->id.'&s='.$subfolder.','.$contentArray->id.'|'.$contentArray->name;
+            $strtable =urlencode(encrypt(urlencode($msgtable)));
+            echo "<img src=\" ".$CFG->pixpath."/f/folder.gif\"  />"." <a href=\"managecontent.php?q=".$strtable."&course=".$urlcourse."\"  >". $contentArray->name."</a>";
+        }
+        ?></td><td width="180px" valign="top" style="padding:0 0 10px 10px"><?php
+            if($contentArray->type==2) //file
+             {
+                  if($contentArray->status==3)
+                    echo 'Not Available';
+                  else if ($contentArray->status==2)
+                    echo 'Available';
+                  else
+                    echo 'InProgress';
+             }
+        ?></td><td class="commands" width="140px" align="center" style="font-size:12px;padding:0 0 10px 10px"><?php
+             if($contentArray->type==2)
+              { ?>
+                 <a href="deleteobject.php?<?php echo "id=".$contentArray->id."&contentid=".$contentArray->contentid."&q=".$delstr."&offset=".$offset."&currenttotal=".$currenttotal."&course=".$urlcourse; ?>" id="hrefDelete" class="ulink" ><span class="ulink">Delete</span></a>
+                 <?php
+              }
+              else if($contentArray->type==1)
+              { ?>
+                 <a href="deleteobject.php?<?php echo "folderid=".$contentArray->id."&q=".$delstr."&offset=".$offset."&currenttotal=".$currenttotal."&course=".$urlcourse; ?>" id="hrefDelete" class="ulink"><span class="ulink">Delete</span></a>
+                 <?php
+              } ?>
+              </td></tr>
+        <?php
+    }
 }
 else
 {
@@ -385,22 +349,17 @@ else
 <?php
 }
 ?>
-
 </table>
-
 <table cellspacing="2" cellpadding="2" border="0" width="640">
 <tr><td style="font-size:12px">
 <?php
 $createid='id='.$id.'&s='.$subfolder;
-	 $strcreate =urlencode(encrypt(urlencode($createid)));
+$strcreate =urlencode(encrypt(urlencode($createid)));
 if($sublevel<=2)
 {
-	
 ?>
- <div style="color:red" id="errorMsg"><?php if(!empty($errorMsg)) { echo $errorMsg; } ?></div>     
-
+<div style="color:red" id="errorMsg"><?php if(!empty($errorMsg)) { echo $errorMsg; } ?></div>     
 <input type="text" id="txtFolder" name="txtFolder" maxlength="20"/> &nbsp; &nbsp; &nbsp;<input type="submit" id="btnCreateFolder" name="btnCreateFolder" value="Make Folder" onclick="return submitForm('<?php echo $strcreate; ?>','<?php echo $urlcourse; ?>');"/>&nbsp; &nbsp; &nbsp; 
-
 <?php
 }
 ?>
@@ -408,53 +367,16 @@ if($sublevel<=2)
 </td>
 <td>
 <?php
-$str="";
-paging_2($str,"0%",$strcreate);?>
+$str=""; // footer of paging
+paging_2($str,"0%",$strcreate,$courseid);?>
 </td></tr>
 </table>
-
 </td></tr>
- </table>
- </td>
- </tr>
- </table>
-
-<?php
-print_footer();	?>
-
+</table>
+</td>
+</tr>
+</table>
 </form>
-</body>
-<script type="text/javascript">
-function submitForm(id,courseid)
-{
-	//alert(id+','+s);
-	if(document.getElementById('txtFolder').value=="")
-	{
-	document.getElementById('errorMsg').innerHTML="Enter folder name";	
-	return false;
-	}
-	
-	var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?";
-
-  for (var i = 0; i < document.getElementById('txtFolder').value.length; i++) {
-  	if (iChars.indexOf(document.getElementById('txtFolder').value.charAt(i)) != -1) {
-  	document.getElementById('errorMsg').innerHTML="Special characters are not allowed.";
-  	return false;
-  	}
-  }
-	 var form = document.forms[0];
-    var action = form.action; 
-	
-	action=action+'?q='+id+'&course='+courseid;
-	
-  form.action =action;
-  return true;
-}
-function refreshlink()
-{
-var currentPageUrl=location.href;
-document.getElementById('refreshCount').value="1";
-document.getElementById('hrefRefresh').href=currentPageUrl;
-}
-</script>
-</html>
+<?php
+print_footer();
+?>

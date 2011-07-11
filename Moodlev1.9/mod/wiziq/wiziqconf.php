@@ -5,5 +5,5 @@ $customer_email="gurjinder@authorgen.com";
 $customer_key="634354047028497500";
 $ConfigFile="http://org.wiziq.com/download/634354047028497500.xml";
 $WebServiceUrl="http://api.wiziq.com/";
-$contentUpload="http://content.vcapi.wiziq.com/contentmanager.ashx";
+$contentUpload="http://content.vcapi.wiziq.com/aglivecontentapi/contentmanager.ashx";
 ?>

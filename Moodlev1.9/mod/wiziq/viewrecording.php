@@ -1,42 +1,20 @@
+<?php /*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * Here the recording is viewed of requested session
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */ ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
-
-<style type="text/css" media="screen">
-
-html, body {
-position: absolute;
-height: 100%;
-max-height: 100%;
-width: 100%;
-margin: 0;
-padding: 0;
-}
-iframe {
-position: absolute;
-height: 100%;
-width: 100%;
-border: none;
-}
-container {
-position: absolute;
-top: 50px; /* Change with Height of #header */
-bottom: 0;
-width: 100%;
-overflow: hidden ;
-}
-header {
-position: absolute;
-top: 0px;
-height: 50px; /* Change with top of #container */
-color: #eee;
-background-color: #ccc;
-width: 100%;
-}
-</style>
-
+ <link href="main.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
@@ -64,7 +42,7 @@ $result.=$char;
 return $result;
 }
 $code=$_REQUEST['s'];
-$sessioncode=decrypt($code,"Auth@Moo(*)");
+$sessioncode=decrypt($code,"Auth@Moo(*)"); //decrypting the session code
 
 $SessionCodeArray=$_SESSION['SessionCode'];
 //print_r($SessionCodeArray);
@@ -73,15 +51,14 @@ foreach($SessionCodeArray as $code1)
 			 
 			  if($code1==$sessioncode)
 			  {
-$query="select * from ".$CFG->prefix."wiziq where insescod=".$sessioncode;
+$query="select * from ".$CFG->prefix."wiziq where insescod=".$sessioncode; //getting the recording url
 			  break;
 			  }
 		  }
 		  
 		  
-$result=mysql_query($query);
-$r=mysql_fetch_array($result);
-$recordingurl=$r['recordingurl'];
+$result=get_record_sql($query);
+$recordingurl=$result->recordingurl;
 
 ?>
 <!---->

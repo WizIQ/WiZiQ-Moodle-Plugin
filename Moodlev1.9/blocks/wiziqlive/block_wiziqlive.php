@@ -1,5 +1,15 @@
-<?PHP //$Id: block_calendar_upcoming.php,v 1.26.6.1 2007/05/06 04:26:37 martinlanghoff Exp $
-    	
+<?PHP 
+  /*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ�s web based virtual classroom equipped with real-time collaboration tools 
+ * Basic page for  WiZiQ block in moodle. 
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */  	
 class block_wiziqlive extends block_base {
     function init() {
         $this->title = get_string('modulename', 'wiziq');
@@ -7,12 +17,13 @@ class block_wiziqlive extends block_base {
     }
  function has_config() {return true;}
     function get_content() {
-        global $USER, $CFG, $SESSION, $COURSE;
+        global $USER, $CFG, $SESSION, $COURSE,$str,$role;
         $cal_m = optional_param( 'cal_m', 0, PARAM_INT );
         $cal_y = optional_param( 'cal_y', 0, PARAM_INT );
 
         require_once($CFG->dirroot.'/calendar/lib.php');
-
+        require_once($CFG->dirroot.'/mod/wiziq/locallib.php');
+        $courseID=$COURSE->id;
         if ($this->content !== NULL) {
             return $this->content;
         }
@@ -27,61 +38,27 @@ class block_wiziqlive extends block_base {
             $filtercourse = array();
             $this->content->footer = '';
 
-        } else {
-			if($USER->id==2)
-{
-$role=1;	
-}
+        } else { // for having role of user in class
+if(!empty($USER->id))
+$role=wiziq_GetUserRole($courseID);
 else
-{
-$query="select ra.roleid from ".$CFG->prefix."context,".$CFG->prefix."role_assignments ra where ".$CFG->prefix."context.id=ra.contextid and ra.userid=".$USER->id." and (".$CFG->prefix."context.instanceid=".$COURSE->id ." or ".$CFG->prefix."context.instanceid=". 0 .")";
-//"select ra.roleid from ".$CFG->prefix."context,".$CFG->prefix."role_assignments ra where ".$CFG->prefix."context.id=ra.contextid and ra.userid=".$USER->id." and ".$CFG->prefix."context.instanceid=".$COURSE->id;
+$role=6;
 
-$rows=array();
-$query1=mysql_query($query);
-
-$i=0;
-while($rows=mysql_fetch_array($query1))
-{
-$resultant[$i]=$rows['roleid'];
-$i++;
-}
-
-sort($resultant);
- $role=$resultant[0];
-}
-  if($USER->id==1)
-{
-	
-$role='6';
-}
 $courseshown = $COURSE->id;
 if($courseshown!=1)
 {
 $str='<a href='.$CFG->wwwroot.'/mod/wiziq/managecontent.php?course='.$courseshown.'>Manage or Upload Content</a>';	
 }
-if($role=='6')// Role 6 is for guest
+if($role=='6' || $role=='4' || $role=='5' )// Role 6-guest, 4-Non-Editing Teacher, 5-Student
 {
 $courseshown = $COURSE->id;
-            $this->content->footer = '<br /><a href="'.$CFG->wwwroot.
-                                     '/calendar/view.php?view=upcoming&amp;course='.$courseshown.'">'.
+$this->content->footer = '<br /><a href="'.$CFG->wwwroot.'/calendar/view.php?view=upcoming&amp;course='.$courseshown.'">'.
                                       get_string('gotocalendar', 'calendar').'</a>';
             $context = get_context_instance(CONTEXT_COURSE, $courseshown);
        	
 }
 
-
-if($role=='5')
-			{
-     $courseshown = $COURSE->id;
-            $this->content->footer = '<br /><a href="'.$CFG->wwwroot.
-                                     '/calendar/view.php?view=upcoming&amp;course='.$courseshown.'">'.
-                                      get_string('gotocalendar', 'calendar').'</a>';
-            $context = get_context_instance(CONTEXT_COURSE, $courseshown);
-       
-
-}
-if($role=='2') // course creator
+if($role=='2' || $role=='3' || $role=='1') // Role 2-course creator, 3-Teacher, 1-Admin
 {
 	$courseshown = $COURSE->id;
             $this->content->footer = '<br /><a href="'.$CFG->wwwroot.
@@ -90,27 +67,6 @@ if($role=='2') // course creator
 			<a href='.$CFG->wwwroot.'/mod/wiziq/wiziq_list.php?course='.$courseshown.'>WiZiQ Classes</a>...<br/>'.$str;
             $context = get_context_instance(CONTEXT_COURSE, $courseshown);
 }
-if($role=='1')
-			{
-
-            $courseshown = $COURSE->id;
-            $this->content->footer = '<br /><a href="'.$CFG->wwwroot.
-                                     '/calendar/view.php?view=upcoming&amp;course='.$courseshown.'">'.
-                                      get_string('gotocalendar', 'calendar').'</a>&nbsp;
-			<a href='.$CFG->wwwroot.'/mod/wiziq/wiziq_list.php?course='.$courseshown.'>WiZiQ Classes</a>...<br/>'.$str;
-            $context = get_context_instance(CONTEXT_COURSE, $courseshown);
-			}
-			
-if($role=='3')
-			{
-
-            $courseshown = $COURSE->id;
-            $this->content->footer = '<br /><a href="'.$CFG->wwwroot.
-                                     '/calendar/view.php?view=upcoming&amp;course='.$courseshown.'">'.
-                                      get_string('gotocalendar', 'calendar').'</a>&nbsp;
-			<a href='.$CFG->wwwroot.'/mod/wiziq/wiziq_list.php?course='.$courseshown.'>WiZiQ Classes</a>...<br/>'.$str;
-            $context = get_context_instance(CONTEXT_COURSE, $courseshown);
-			}
             if ($courseshown == SITEID) {
                 // Being displayed at site level. This will cause the filter to fall back to auto-detecting
                 // the list of courses it will be grabbing events from.

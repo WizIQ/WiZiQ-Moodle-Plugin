@@ -1,3 +1,16 @@
+<?php
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * Here request send to api for getting the path for download recording
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -141,50 +154,20 @@
             height: 10px; overflow: hidden; visibility:hidden;" src="#"></iframe>
             <?php
 			require_once("../../config.php");
- require_once("lib.php");
-  require_once($CFG->dirroot .'/course/lib.php');
- require_once($CFG->dirroot .'/lib/blocklib.php');
+require_once("lib.php");
+require_once($CFG->dirroot .'/course/lib.php');
+require_once($CFG->dirroot .'/lib/blocklib.php');
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once ($CFG->dirroot.'/lib/moodlelib.php');
 require_once("wiziqconf.php");
+require_once("locallib.php");
 $sessioncode=$_REQUEST['SessionCode'];
-function do_post_request($url, $data, $optional_headers = null)
-  {
-	  
-$params = array('http' => array(
-                  'method' => 'POST',
-                  'content' => $data
-               ));
-     if ($optional_headers !== null) {
-        $params['http']['header'] = $optional_headers;
-     }
-     $ctx = stream_context_create($params);
-     $fp = @fopen($url, 'rb', false, $ctx);
-     if (!$fp) {
-        throw new Exception("Problem with $url, $php_errormsg");
-     }
-     $response = @stream_get_contents($fp);
-     if ($response === false) {
-        throw new Exception("Problem reading data from $url, $php_errormsg");
-     }
-	 //print_r($response);
-     return $response;
-  }
 $person=array(
-			  'SessionCode'=>$sessioncode,
-			  'CustomerKey'=>$customer_key
-			  );
-  $result=do_post_request($WebServiceUrl.'moodle/class/downloadrecording',http_build_query($person, '', '&'));
-try
-	{
-	 $objDOM = new DOMDocument();
- 	 $objDOM->loadXML($result); 
-  //make sure path is correct
-	}
-	catch(Exception $e)
-	{
-		echo $e->getMessage();
-	}
+	'SessionCode'=>$sessioncode,
+	'CustomerKey'=>$customer_key
+             );
+  $result=wiziq_do_post_request($WebServiceUrl.'moodle/class/downloadrecording',http_build_query($person, '', '&'));
+	$objDOM=wiziq_ReadXML($result);
 	$Status=$objDOM->getElementsByTagName("Status");
 	$Status=$Status->item(0)->nodeValue;
 	
@@ -192,6 +175,7 @@ try
 	$message=$message->item(0)->nodeValue;
 	
 	$XmlPathToPing1=$objDOM->getElementsByTagName("XmlPathToPing");
+        if(!empty($XmlPathToPing1->item(0)->nodeValue))
 	$XmlPathToPing=$XmlPathToPing1->item(0)->nodeValue;
 	
 	if($Status=="False")

@@ -1,29 +1,26 @@
 <?php
 setcookie("query", $_REQUEST['q']);
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>WiZiQ Content</title>
-<style type="text/css">
-.ulink{text-decoration:underline; font-weight:bold; font-size:12px}
-.ulink:hover{text-decoration:none;font-weight:bold;font-size:12px}
-</style>
-</head>
-<body>
-<form id="form1" name="form1" method="post" enctype="multipart/form-data" >
-<?php
-require_once("../../config.php");
-require_once("lib.php");
-require_once($CFG->dirroot."/course/lib.php");
-require_once($CFG->dirroot.'/calendar/lib.php');
-require_once($CFG->dirroot.'/mod/forum/lib.php');
-require_once ($CFG->dirroot.'/lib/blocklib.php');
-require_once ($CFG->dirroot.'/lib/moodlelib.php');
-require_once("wiziqconf.php");
-require_once("cryptastic.php");
-require_login();
+/*
+ * wiziq.com Module
+ * WiZiQ's Live Class modules enable Moodle users to use WiZiQ’s web based virtual classroom equipped with real-time collaboration tools 
+ * This page is for uploading file content
+ */
+ /**
+ * @package mod
+ * @subpackage wiziq
+ * @author preeti chauhan(preetic@wiziq.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+	require_once("../../config.php");
+	require_once("lib.php");
+	require_once($CFG->dirroot."/course/lib.php");
+	require_once($CFG->dirroot.'/calendar/lib.php');
+	require_once($CFG->dirroot.'/mod/forum/lib.php');
+	require_once ($CFG->dirroot.'/lib/blocklib.php');
+	require_once ($CFG->dirroot.'/lib/moodlelib.php');
+	require_once("wiziqconf.php");
+	require_once("cryptastic.php");
+	require_login();
 
     $sectionreturn = optional_param('sr', '', PARAM_INT);
     $add           = optional_param('add','', PARAM_ALPHA);
@@ -44,7 +41,7 @@ require_login();
     $eventid = optional_param('id', 0, PARAM_INT);
     $eventtype = optional_param('type', 'select', PARAM_ALPHA);
     $urlcourse = optional_param('course', 0, PARAM_INT);
-	$cal_y = optional_param('cal_y');
+    $cal_y = optional_param('cal_y');
     $cal_m = optional_param('cal_m');
     $cal_d = optional_param('cal_d');
 	
@@ -81,34 +78,27 @@ require_login();
 	$calendar_navlink = array('name' => $strwiziqs,
                           '',
                           'type' => 'misc');
-
-    $day = intval($now['mday']);
-    $mon = intval($now['mon']);
-    $yr = intval($now['year']);
-	
-	if($urlcourse > 0 && record_exists('course', 'id', $urlcourse)) {
-        //require_login($urlcourse, false);
-
-        if($urlcourse == SITEID) {
-            // If coming from the site page, show all courses
-            $SESSION->cal_courses_shown = calendar_get_default_courses(true);
-            calendar_set_referring_course(0);
+	if ($SESSION->cal_course_referer != SITEID &&
+       ($shortname = get_field('course', 'shortname', 'id', $SESSION->cal_course_referer)) !== false)
+        {
+        // If we know about the referring course, show a return link and ALSO require login!
+        require_login();
+        //$nav = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$SESSION->cal_course_referer.'">'.$shortname.'</a> -> '.$nav;
+        if (!empty($course)) {
+            $course = get_record('course', 'id', $SESSION->cal_course_referer); // Useful to have around
         }
-        else {
-			
-            // Otherwise show just this one
-            $SESSION->cal_courses_shown = $urlcourse;
-            calendar_set_referring_course($SESSION->cal_courses_shown);
         }
-    }
 	 require_login($course, false);
 	$navlinks[] = $calendar_navlink;
 	$navlinks[] = array('name' => 'Upload File', 'link' => null, 'type' => 'misc');
     $navigation = build_navigation($navlinks);
 	
-	print_header($SITE->shortname.':'.$strwiziqs,$strwiziqs,$navigation, $wiziq->name,"", true,"",user_login_string($site));
-	print_simple_box_start('center', '', '', 5, 'generalbox', $module->name);
+	print_header($course->shortname.':'.$strwiziqs,$course->fullname,$navigation,"","", true,"","");
+	print_simple_box_start('center', '', '', 5, 'generalbox', "");
 	?>
+<link href="main.css" rel="stylesheet" type="text/css">
+<script language="javascript" src="wiziq.js" type="text/javascript"></script>
+<form id="form1" name="form1" method="post" enctype="multipart/form-data" >
 <table><tr><td width="180px" align="left" valign="top">
 <?php
 include("sideblock.php");
@@ -146,188 +136,56 @@ include("sideblock.php");
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td><!--<label>Description</label>
-<textarea id="txtDesc" name="txtDesc" ></textarea><br />
-<br />-->
-  <input type="submit" value="Upload" name="btnupload" id="btnupload" onClick="return SubmitUpload(this);" />
-  <a href="javascript:history.go(-1)" ><span class="ulink" style="margin-left:13px">Cancel</span></a>
-  </td>
-
-</tr>
-    
-    </table>
-    </td>
-
-
+<td>
+<input type="submit" value="Upload" name="btnupload" id="btnupload" onClick="return SubmitUpload(this);" />
+<a href="javascript:history.go(-1)" ><span class="ulink" style="margin-left:13px">Cancel</span></a>
+</td>
+</tr>   
+</table>
+</td>
 <td align="center">
 <div style="font-size:12px; float:left; margin-left:40px; font-weight:bold; margin-top:35px">Supported file formats and Sizes</div>
 <div style="color:#818181;font-size:11px;float:left; margin-left:40px;">
 <img src="<?php echo $CFG->wwwroot; ?>/mod/wiziq/images/fileformat.gif" />
- </div>
- </td>
- </tr>
-
-
-<?php
+</div>
+</td>
+</tr>
+<?php ///------------------Logic for decrypting the encrypted url-------------------
 if(!empty($_REQUEST['q']))
 {
-
- parse_str(urldecode(decrypt($_REQUEST['q'])),$_request);
-
+    parse_str(urldecode(decrypt($_REQUEST['q'])),$_request);
 }
 $id=$_request['id'];
- $s=$_request['s'];
- if(!empty($s))
- {
-$subfolder=$_request['s'];
- $arrayfolder=explode(",",$subfolder);
- $sublevel=sizeof($arrayfolder)-1;
-for($i=1;$i<sizeof($arrayfolder);$i++)
- {
+$s=$_request['s'];
+$alink="";
+if(!empty($s))
+{
+    $subfolder=$_request['s'];
+    $arrayfolder=explode(",",$subfolder);
+    $sublevel=sizeof($arrayfolder)-1;
+    for($i=1;$i<sizeof($arrayfolder);$i++)
+    {
 	$arraystring=explode("|",$arrayfolder[$i]); 
 	if($i<sizeof($arrayfolder)-1)
-{
-	$a=$arraystring[1];
-$alink.=$a.'\\';
+        {
+            $a=$arraystring[1];
+            $alink.=$a.'\\';
+        }
+        else
+            $alink.=$arraystring[1];
+    }
 }
-else
-$alink.=$arraystring[1];
-
- }
- 
- }
-echo '<input type="hidden" id="folderid" name="folderid" value="'.$alink.'" />';
-
+echo '<input type="hidden" id="folderid" name="folderid" value="'.$alink.'" />
+    <input type="hidden" id="contentUpload" name="contentUpload" value="'.$contentUpload.'" />
+    <input type="hidden" id="contentUpload" name="contentUpload" value="'.$contentUpload.'" />
+    <input type="hidden" id="Usercode" name="Usercode" value="'.$USER->id.'" />
+    <input type="hidden" id="CustomerKey" name="CustomerKey" value="'.$customer_key.'" />
+    <input type="hidden" id="courseid" name="courseid" value="'.$urlcourse.'" />
+    <input type="hidden" id="NextUrl" name="NextUrl" value="'.$CFG->wwwroot.'/mod/wiziq/uploadreturn.php" />';
 ?>
 </table>
 </td></tr></table>
 </form>
-
-</body>
-<script type="text/javascript" language="javascript">
-function SubmitUpload(btn)
-        {
-			var btnID=btn;
-			var check=CallSubmit();
-			if(check==true)
-			{
-				var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?";
-
-				for (var i = 0; i < document.getElementById('txtTitle').value.length; i++) 
-				{
-				if (iChars.indexOf(document.getElementById('txtTitle').value.charAt(i)) != -1)
-				{
-				document.getElementById('errorMsg').innerHTML="Special characters are not allowed.";
-				return false;
-  				}
-  				}
-			//var filePath=document.getElementById('fileupload').value;
-   			//var fileName=filePath.substr(filePath.lastIndexOf('\\')+1);
-   
-			
-			//document.cookie="title=" +title;
-			//document.cookie="Desc=" +document.getElementById("txtDesc").value;
-            var ts = new Date().getTime(); 
-            //alert("iframe"+document.getElementById('filename').value);
-            document.getElementById('upProgressID').value =ts;
-			//alert(document.getElementById('upProgressID').value);
-            up_UpdateFormAction(btnID);
-            //document.forms["form1"].submit();
-			document.form1.submit();
-			return true;
-			}
-			else
-			return false;
-		}
-		function CallSubmit()
-{
-	
-	
-			if(document.getElementById('fileupload').value=="")
-			{
-				document.getElementById('errorMsg').innerHTML="Choose the file";
-				return false;
-			}
-			else
-			{
-	     
-				var check=checkExtension();
-				if(check==0)
-				{
-					document.getElementById('errorMsg').innerHTML="File type not supported";
-					return false;
-				}
-				 return true;
-			}
-			return true;
-}
- function checkExtension()
-    {
-    
-        // for mac/linux, else assume windows
-       
-        var fileTypes     = new Array('.ppt','.pptx','.jnt','.rtf','.pps','.pdf','.swf','.doc','.xls','.xlsx','.docx','.ppsx','.flv','.mp3','.wmv','.wav','.wma','.mov','.avi','.mpeg'); // valid filetypes
-        var fileName      = document.getElementById('fileupload').value; // current value
-		
-        var extension     = fileName.substr(fileName.lastIndexOf('.'), fileName.length);
-		
-        var valid = 0;
-        
-        for(var i in fileTypes)
-        {
-        
-            if(fileTypes[i].toUpperCase() == extension.toUpperCase())
-            {
-                valid = 1;
-                break;
-                
-            }
-        
-        }
-       		  
-        return valid;
-    }
-//var rootUrl="http://192.168.17.57/aGLiveContentAPI/contentmanager.ashx";
-//var rootUrl="http://192.168.17.231/aGLiveContentAPI/contentmanager.ashx";
-var rootUrl="<?php echo $contentUpload; ?>";
-
-var sessioncode=16326;//26046;
-
-function up_UpdateFormAction(btnID)
-{//document.getElementById('upProgressID').value='1281613863469';
-    var form = document.forms[0];
-    var action = form.action;
-    
-    var re = new RegExp('&?UploadID=[^&]*');
-    if (action.match(re)) action = action.replace(re, '');
-    
-    var delim;
-   
-    if (action.indexOf('?') == action.length-1) 
-    {
-         delim = '';
-    }
-    else 
-    {
-        delim = '?';
-        if (action.indexOf('?') > -1) delim = '&';
-    }
-	var filename=document.getElementById('fileupload').value;
-   var fileupload=filename.substr(filename.lastIndexOf('\\')+1);
-  var title=document.getElementById("txtTitle").value;
-			if(title=='')
-			title=fileupload;
-var folderid=document.getElementById('folderid').value;
-btnID.disabled="disabled";
-    form.action = rootUrl+'?method=upload&filename='+fileupload+'&UploadID=' + document.getElementById('upProgressID').value+'&m=o&sessioncode=16326&uc=<?php echo $USER->id; ?>&p='+folderid+'&k=<?php echo $customer_key; ?>&nexturl=<?php echo $CFG->wwwroot ;?>/mod/wiziq/uploadreturn.php?t='+title+'|'+<?php echo $urlcourse; ?>;
- //alert(form.action); 
-   
-}
-</script>
-</html>
-
- 
 <?php
-
 print_footer();	
 ?>
